@@ -50,6 +50,7 @@ Execute this sequence:
 
 - Detect package manager from lockfiles: `pnpm-lock.yaml`, `package-lock.json`, `yarn.lock`, `bun.lockb`.
 - Detect likely frameworks from files such as `next.config.*`, `vite.config.*`, `nuxt.config.*`, `astro.config.*`, `package.json`, or frontend source structure.
+- Detect server-rendered stacks: Go `html/template` (look for `templates/` dir + `*.html` with `{{define}}`), Python Jinja/Flask/Django, PHP Blade/Twig, Ruby ERB. These have no hydration, no HMR, no client-side router — different bug patterns apply (inline onclick, template variable injection, cache-bust `?v=N`).
 - Prefer existing scripts from `package.json`, `Makefile`, or repo docs.
 - Do not invent custom startup commands when a standard repo command exists.
 - If `BASE_URL` is supplied and reachable, prefer attach mode.
@@ -118,6 +119,11 @@ Use these classes to narrow diagnosis:
 - empty/error state regressions
 - keyboard navigation and focus restoration issues
 - missing labels or accessibility regressions
+- stale cached assets (CDN/reverse proxy serving old JS/CSS despite code changes)
+- external service response shape mismatch (200 OK but payload structure differs from what UI expects)
+- store wiring bugs (action succeeds visibly but writes to wrong backend store — effect missing on target page)
+- platform API restrictions (feature works in Chrome but not in WebView, Telegram Mini App, or iOS Safari)
+- server-rendered template bugs (inline onclick load order, template variable escaping, missing cache-bust version bump)
 
 When investigating, prefer evidence that distinguishes between:
 
@@ -126,6 +132,8 @@ When investigating, prefer evidence that distinguishes between:
 - event wiring failure
 - CSS/layout failure
 - data contract failure
+- caching/deployment failure (code is correct but not being served)
+- store/persistence wiring failure (UI works but data goes to wrong place)
 
 ## Edit Rules
 

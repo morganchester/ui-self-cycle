@@ -101,6 +101,7 @@ Follow this loop exactly.
 - detect package manager from lockfiles
 - inspect scripts from `package.json`, `pyproject`, `Makefile`, or existing task runner
 - identify framework, build tool, and likely frontend entrypoint
+- for server-rendered apps (Go `html/template`, Jinja, Blade, ERB), identify template directories and static asset paths; note that inline `onclick` attributes, template variable injection into JS, and cache-bust query params (`?v=N`) replace SPA patterns like hydration and bundler HMR
 - prefer existing repo commands over inventing new ones
 
 ### C. Run or attach app
@@ -205,6 +206,10 @@ Evidence classes:
 - `responsive`: breakpoint collapse, horizontal scroll, hidden navigation
 - `accessibility`: focus order, trap failures, missing labels, keyboard gaps
 - `network`: failed calls, unhandled loading/error states, bad retries
+- `data_contract`: 200 OK response but payload shape differs from what UI expects (nested vs flat, array wrapper, renamed fields)
+- `cache`: stale static assets served despite code changes — CDN, reverse proxy, or browser ignoring cache invalidation
+- `store_wiring`: action completes successfully (200, toast shown) but writes to wrong backend store so the effect is invisible on the target page
+- `platform`: API available in standard browsers but missing or restricted in WebView, Telegram Mini App, iOS Safari, or other embedded contexts
 
 Evidence rules:
 
@@ -326,6 +331,55 @@ Look for:
 - missing retry or timeout path
 - spinner with no empty/error state
 - component assuming data shape on failure
+
+### Stale assets from caching layer
+
+Look for:
+
+- reverse proxy (nginx, Caddy) with aggressive `Cache-Control` (`immutable`, long `max-age`)
+- CDN edge cache not invalidated after deploy
+- browser ignoring `Disable cache` in DevTools when a service worker or `immutable` directive is active
+- static file URLs without cache-bust suffix (`?v=N`, content hash) or suffix not incremented after change
+- symptoms: code changes have no effect, old JS errors persist, `curl` returns correct content but browser does not
+
+### External service response shape mismatch
+
+Look for:
+
+- external orchestrator (n8n, Zapier, webhook pipeline) returning a different JSON structure than the frontend expects
+- array wrapper around a single object (`[{book: {...}}]` vs `{book: {...}}`)
+- nested objects where flat fields are expected (`{edition: {isbn}}` vs `{isbn}`)
+- field renaming between services (`categoryCode` vs `category_id`)
+- response 200 OK with valid JSON but wrong shape — the request succeeds, the UI renders empty or partial
+
+### Store wiring bugs (works but writes to wrong place)
+
+Look for:
+
+- multiple backend stores for similar concepts (favorites vs library, bookmarks vs collections, cart vs wishlist)
+- API call returns success and UI shows confirmation, but the written record never appears on the target page
+- the target page reads from a different store/collection than the one the action writes to
+- verify by tracing: which store does the API endpoint write to, and which store does the listing page query
+
+### Platform API availability in restricted contexts
+
+Look for:
+
+- `<input capture="environment">` is a hint, not a command — ignored on desktop browsers and many WebViews
+- `navigator.mediaDevices.getUserMedia` may be blocked in Telegram Mini App, Instagram WebView, or non-HTTPS contexts
+- `navigator.share`, `navigator.clipboard`, `Notification` API may be unavailable or silently fail in embedded browsers
+- feature detection (`if (navigator.mediaDevices)`) should gate the UI — hide buttons for unavailable features, not show them broken
+- iOS Safari specific: `autoplay` restrictions, `position: fixed` inside scroll containers, `100vh` including address bar
+
+### Server-rendered template and vanilla JS issues
+
+Look for:
+
+- Go `html/template`, Jinja2, Blade, ERB, or similar — no virtual DOM, no hydration, no HMR
+- inline `onclick` attributes referencing global functions not yet loaded (script order matters)
+- template variables injected into JS via `window.VAR = "{{.Value}}"` — missing escaping or `safeJS` producing unexpected output
+- cache-bust query params (`?v=N`) on `<script>` and `<link>` tags not incremented after changes
+- no client-side router — full page reloads on navigation, state lost between pages unless stored in cookies or server session
 
 ### Keyboard and focus issues
 

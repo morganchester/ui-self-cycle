@@ -74,14 +74,35 @@ Save these per run:
 - `network-issues.json`
 - optional trace or video only if the repo already uses them or the issue is hard to diagnose
 
-## 7. Interpretation Rules
+## 7. Cache Verification
+
+Before diagnosing any "code change has no effect" symptom:
+
+- compare the served file content (via `curl` or network tab response body) against the source file on disk
+- check `Cache-Control` and `ETag` response headers for aggressive caching (`immutable`, long `max-age`)
+- verify that static asset URLs include a cache-bust suffix (`?v=N`, content hash) and that the suffix was incremented after the change
+- if a reverse proxy (nginx, Caddy) or CDN sits in front of the app, its cache may survive app restarts — check proxy config or purge cache
+- if the browser serves stale content despite code changes, fix the caching layer before investigating further
+
+## 8. Platform Context Awareness
+
+When the target environment includes WebViews or embedded browsers:
+
+- `<input capture="environment">` is a hint, not a command — desktop and many WebViews ignore it
+- `navigator.mediaDevices.getUserMedia` may require HTTPS and may be blocked entirely in Telegram Mini App, Instagram WebView, or older Android WebView
+- test with the actual target platform when possible; if not, note platform assumptions as potential blockers
+- feature-detect APIs and gate UI accordingly (hide buttons for unavailable features rather than showing them broken)
+
+## 9. Interpretation Rules
 
 - prioritize console and network failures that map to the failing route
 - do not assume every warning is the root cause
 - correlate UI symptoms with code paths before editing
 - if the browser run is clean but the bug remains, inspect event wiring, CSS, state flow, and focus behavior
+- if a network response is 200 OK but the UI renders empty, inspect the response payload shape — it may not match what the JS expects (array vs object, nested vs flat, renamed fields)
+- if an action succeeds (200, toast shown) but the effect is missing on another page, trace which backend store the action writes to and which store the listing page reads from — they may be different
 
-## 8. Re-Validation After Fix
+## 10. Re-Validation After Fix
 
 Repeat the same route and action sequence:
 
