@@ -1,0 +1,38 @@
+goal: "Stabilize the login and dashboard flows"
+project_root: "./frontend"
+base_url: ""
+entry_pages:
+  - "/"
+  - "/login"
+  - "/dashboard"
+known_bugs:
+  - "Login submit button sometimes does nothing"
+  - "Dashboard toolbar overflows on mobile"
+acceptance_criteria:
+  - "Login flow completes successfully with no uncaught console errors"
+  - "Dashboard toolbar remains usable at 375px width"
+constraints:
+  - "Do not change backend APIs"
+  - "Do not rewrite the auth architecture"
+safe_mode: true
+max_fixes_this_run: 1
+viewports:
+  - "375x812"
+  - "768x1024"
+  - "1440x900"
+auth_setup:
+  username_env: "E2E_USERNAME"
+  password_env: "E2E_PASSWORD"
+state_dir: "./.ralph/ui-self-cycle"
+startup:
+  prefer_attach: false
+  readiness_paths:
+    - "/"
+    - "/login"
+  readiness_timeout_seconds: 120
+browser:
+  prefer_playwright: true
+  capture_console: true
+  capture_network_failures: true
+  capture_dom_snapshots: true
+  full_page_screenshots: true

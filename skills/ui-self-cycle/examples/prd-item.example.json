@@ -1,0 +1,29 @@
+{
+  "id": "ui-login-submit-stuck",
+  "type": "ui_debug",
+  "title": "Login submit leaves UI stuck in loading state",
+  "goal": "Make login submit complete or fail visibly without leaving the button in a permanent loading state",
+  "projectRoot": "./frontend",
+  "baseUrl": "",
+  "entryPages": ["/login"],
+  "knownBugs": [
+    "Submit button remains disabled after failed request",
+    "Error toast does not appear on timeout"
+  ],
+  "acceptanceCriteria": [
+    "Failed login returns UI to idle state",
+    "User sees visible error feedback",
+    "No uncaught console errors on /login"
+  ],
+  "constraints": [
+    "Do not modify backend behavior",
+    "Safe mode only",
+    "One issue fix per run"
+  ],
+  "safeMode": true,
+  "maxFixesThisRun": 1,
+  "priority": "high",
+  "status": "ready",
+  "stateDir": "./.ralph/ui-self-cycle",
+  "viewports": ["375x812", "1440x900"]
+}

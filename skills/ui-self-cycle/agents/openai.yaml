@@ -1,0 +1,7 @@
+interface:
+  display_name: "UI Self-Healing Cycle"
+  short_description: "Autonomous web UI debug loop for Ralph"
+  default_prompt: "Use $ui-self-cycle to inspect a local web project, gather browser evidence, fix one validated UI issue, and persist progress for the next Ralph iteration."
+
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,15 @@
+status=continue
+goal=Stabilize login and dashboard flows
+project_root=./frontend
+base_url=http://127.0.0.1:3000
+current_issue_id=login-submit-pending-reset
+current_issue_title=Login submit leaves pending state stuck after rejected request
+current_issue_retries=1
+max_retries_per_issue=3
+last_run_timestamp=2026-03-28T10:15:00Z
+last_validation_result=pass
+last_validation_evidence=./.ralph/ui-self-cycle/evidence/run-004/login-after-fix.png
+last_handoff=./.ralph/ui-self-cycle/latest-handoff.md
+next_action=Probe dashboard mobile toolbar overflow at 375x812
+open_issues=dashboard-toolbar-overflow,mobile-modal-focus-restore
+blocked_reason=
