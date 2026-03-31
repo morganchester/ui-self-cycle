@@ -124,6 +124,10 @@ Use these classes to narrow diagnosis:
 - store wiring bugs (action succeeds visibly but writes to wrong backend store — effect missing on target page)
 - platform API restrictions (feature works in Chrome but not in WebView, Telegram Mini App, or iOS Safari)
 - server-rendered template bugs (inline onclick load order, template variable escaping, missing cache-bust version bump)
+- design system inconsistency (some pages use styled classes, others have bare unstyled elements — especially form inputs, selects, checkboxes across multi-page admin panels)
+- inline style overrides breaking responsive layout (e.g. `style="margin-left:8px"` inside flex container causes mobile horizontal overflow)
+- nginx/proxy caching hierarchy bugs (`immutable` blocks all revalidation; `expires` sets implicit `max-age` that overrides `must-revalidate`; use `no-cache` for admin panels)
+
 
 When investigating, prefer evidence that distinguishes between:
 
@@ -134,6 +138,7 @@ When investigating, prefer evidence that distinguishes between:
 - data contract failure
 - caching/deployment failure (code is correct but not being served)
 - store/persistence wiring failure (UI works but data goes to wrong place)
+- design system coverage failure (CSS exists but not applied uniformly across pages)
 
 ## Edit Rules
 

@@ -74,6 +74,18 @@ Save these per run:
 - `network-issues.json`
 - optional trace or video only if the repo already uses them or the issue is hard to diagnose
 
+## 6b. Form Element Consistency Audit
+
+When the project has multiple pages with similar UI (admin panels, dashboards, settings):
+
+- collect all form elements across ALL pages: `<input>`, `<select>`, `<button>`, `<textarea>`, `<input type="checkbox">`
+- compare sizing, padding, border, font-size, border-radius across pages
+- look for pages where toolbar inputs are styled (via design system classes) vs pages where equivalent inputs are bare/unstyled
+- check checkbox/radio sizing consistency — common bug: some use a wrapper class, others are bare and appear oversized or misaligned
+- check modal form elements separately — modals often have different styling context than page-level forms
+- if inconsistency found, prefer CSS-level fixes (contextual selectors like `.toolbar input`) over adding classes to every HTML element
+- after fixing CSS: bump cache version (`?v=N`) in ALL HTML files that reference the stylesheet
+
 ## 7. Cache Verification
 
 Before diagnosing any "code change has no effect" symptom:

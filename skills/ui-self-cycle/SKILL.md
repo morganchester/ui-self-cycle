@@ -391,6 +391,35 @@ Look for:
 - focus not restored after close
 - trapped focus escaping modal or being lost entirely
 
+### CSS design system inconsistency across pages
+
+Look for:
+
+- design system defines styled form elements (`.input-sm`, `.btn-xs`, etc.) but some pages use bare `<input>`, `<select>`, `<button>` without classes
+- toolbar/filter bars on one page group are styled (e.g. settings pages) while equivalent bars on another group (e.g. moderation pages) use unstyled elements
+- fix by adding scoped CSS rules that target elements by context (`.toolbar input[type="text"]`, `.toolbar select:not(.btn)`) rather than requiring class on every element
+- checkboxes and radio buttons with inconsistent sizing — some pages use a wrapper class (`.toggle-label`), others are bare; fix with a global `input[type="checkbox"]` reset
+- audit ALL pages systematically, not just the reported ones — inconsistency bugs tend to be systemic
+
+### Inline style overrides breaking responsive layout
+
+Look for:
+
+- inline `style="margin-left:8px"` or similar on elements inside flex/grid containers — these override responsive CSS and cause horizontal overflow at narrow viewports
+- fix at the CSS level with `!important` at the mobile breakpoint (`.toolbar > * { margin-left: 0 !important }`) rather than editing every HTML template
+- add `overflow-x: hidden` on the outermost shell container as a safety net
+- symptoms: page scrolls horizontally by a few pixels on mobile, often exactly the margin/padding value
+
+### nginx caching hierarchy and cache-bust failures
+
+Look for:
+
+- `Cache-Control: immutable` prevents ANY revalidation within `max-age` — even `?v=N` query string changes won't help if the HTML page itself is cached with the old `?v=N`
+- `expires 7d` directive sets `max-age=604800` implicitly — within this window, `must-revalidate` means "revalidate AFTER max-age expires", not "revalidate on every request"
+- `no-cache` (without `expires`) forces the browser to always revalidate with the server but still allows 304 Not Modified — this is the correct directive for admin panels and low-traffic apps where cache-bust `?v=N` should work instantly
+- escalation ladder: try `must-revalidate` first → if stale assets persist, check for `expires`/`max-age` overriding it → if still broken, switch to `no-cache` and remove `expires`
+- always verify the actual response headers with `curl -I`, not just the config — proxy layers may add their own caching headers
+
 ## Fix Strategy
 
 - prefer root-cause-first changes
