@@ -221,6 +221,34 @@ Evidence rules:
 
 Apply targeted heuristics before changing code.
 
+## UI Structuring Rule
+
+When the UI has account-level or profile-level actions, prefer moving them into
+their own profile surface instead of mixing them into the main operational
+screen.
+
+Examples:
+
+- password change belongs on a profile page, account panel, or profile dropdown
+- logout belongs in a profile/account menu, not as a dominant primary action in
+  the main workspace
+- identity, credentials, account settings, and session controls should be
+  grouped together
+
+Use this rule especially when the current UI mixes:
+
+- operational controls and system status
+- profile/account settings
+- authentication lifecycle actions
+
+Reasoning:
+
+- it reduces clutter in the main workflow
+- it makes the primary screen more task-focused
+- it avoids a common UI regression where account actions are embedded into a
+  dashboard first and later have to be split back out into a dedicated profile
+  flow
+
 ### Broken click handlers
 
 Look for:
